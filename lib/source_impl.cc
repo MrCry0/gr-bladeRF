@@ -38,10 +38,10 @@ namespace gr {
           gr::iqbalance::optimize_c::sptr iq_opt = gr::iqbalance::optimize_c::make( 0 );
           gr::iqbalance::fix_cc::sptr     iq_fix = gr::iqbalance::fix_cc::make();
 
-          connect(block, i, iq_fix, 0);
-          connect(iq_fix, 0, self(), channel++);
+          connect(device_, i, iq_fix, 0);
+          connect(iq_fix, 0, self(), i);
 
-          connect(block, i, iq_opt, 0);
+          connect(device_, i, iq_opt, 0);
           msg_connect(iq_opt, "iqbal_corr", iq_fix, "iqbal_corr");
 
           _iq_opt.push_back( iq_opt.get() );
@@ -75,12 +75,12 @@ namespace gr {
 
       #ifdef HAVE_IQBALANCE
             size_t channel = 0;
-            for (size_t dev_chan = 0; dev_chan < dev_->get_num_channels(); dev_chan++) {
+            for (size_t dev_chan = 0; dev_chan < device_->get_num_channels(); dev_chan++) {
               if ( channel < _iq_opt.size() ) {
                 gr::iqbalance::optimize_c *opt = _iq_opt[channel];
 
                 if ( opt->period() > 0 ) { /* optimize is enabled */
-                  opt->set_period( dev->get_sample_rate() / 5 );
+                  opt->set_period( device_->get_sample_rate() / 5 );
                   opt->reset();
                 }
               }
