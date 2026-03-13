@@ -126,6 +126,26 @@ target_link_libraries(gnuradio-bladeRF ${gr_bladerf_libs})
 include(GrMiscUtils)
 GR_LIBRARY_FOO(gnuradio-bladeRF)
 
+if(UNIX AND NOT APPLE)
+    set(gr_bladerf_library_name
+        "${CMAKE_SHARED_LIBRARY_PREFIX}gnuradio-bladeRF${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+    install(CODE "
+        set(gr_bladerf_library_dir
+            \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${GR_LIBRARY_DIR}\")
+        file(GLOB gr_bladerf_installed_libraries
+            \"\${gr_bladerf_library_dir}/${gr_bladerf_library_name}.*\")
+        foreach(gr_bladerf_installed_library IN LISTS gr_bladerf_installed_libraries)
+            if(NOT IS_SYMLINK \"\${gr_bladerf_installed_library}\"
+               AND NOT \"\${gr_bladerf_installed_library}\" STREQUAL
+                       \"\${gr_bladerf_library_dir}/${gr_bladerf_library_name}.${VERSION}\")
+                message(STATUS \"Removing stale installed library: \${gr_bladerf_installed_library}\")
+                file(REMOVE \"\${gr_bladerf_installed_library}\")
+            endif()
+        endforeach()
+    ")
+endif()
+
 ########################################################################
 # Print summary
 ########################################################################
