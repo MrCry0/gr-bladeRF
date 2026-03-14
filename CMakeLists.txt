@@ -129,6 +129,9 @@ endif()
 include(FindPkgConfig)
 find_package(Gnuradio "3.9" REQUIRED)
 find_package(gnuradio-iqbalance PATHS ${Gnuradio_DIR})
+if(gnuradio-iqbalance_FOUND)
+  add_definitions(-DHAVE_IQBALANCE)
+endif()
 
 include(GrVersion)
 
