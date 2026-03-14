@@ -245,34 +245,27 @@ namespace gr {
     void source_impl::set_iq_balance_mode(int mode, size_t chan)
     {
       #ifdef HAVE_IQBALANCE
-        size_t channel = 0;
-        for (source_iface *dev : _devs) {
-          for (size_t dev_chan = 0; dev_chan < dev->get_num_channels(); dev_chan++) {
-            if ( chan == channel++ ) {
-              if ( chan < _iq_opt.size() && chan < _iq_fix.size() ) {
-                gr::iqbalance::optimize_c *opt = _iq_opt[chan];
-                gr::iqbalance::fix_cc *fix = _iq_fix[chan];
+        if ( chan < _iq_opt.size() && chan < _iq_fix.size() ) {
+          gr::iqbalance::optimize_c *opt = _iq_opt[chan];
+          gr::iqbalance::fix_cc *fix = _iq_fix[chan];
 
-                if ( IQBalanceOff == mode  ) {
-                  opt->set_period( 0 );
-                  /* store current values in order to be able to restore them later */
-                  _vals[ chan ] = std::pair< float, float >( fix->mag(), fix->phase() );
-                  fix->set_mag( 0.0f );
-                  fix->set_phase( 0.0f );
-                } else if ( IQBalanceManual == mode ) {
-                  if ( opt->period() == 0 ) { /* transition from Off to Manual */
-                    /* restore previous values */
-                    std::pair< float, float > val = _vals[ chan ];
-                    fix->set_mag( val.first );
-                    fix->set_phase( val.second );
-                  }
-                  opt->set_period( 0 );
-                } else if ( IQBalanceAutomatic == mode ) {
-                  opt->set_period( dev->get_sample_rate() / 5 );
-                  opt->reset();
-                }
-              }
+          if ( IQBalanceOff == mode ) {
+            opt->set_period( 0 );
+            /* store current values in order to be able to restore them later */
+            _vals[ chan ] = std::pair< float, float >( fix->mag(), fix->phase() );
+            fix->set_mag( 0.0f );
+            fix->set_phase( 0.0f );
+          } else if ( IQBalanceManual == mode ) {
+            if ( opt->period() == 0 ) { /* transition from Off to Manual */
+              /* restore previous values */
+              std::pair< float, float > val = _vals[ chan ];
+              fix->set_mag( val.first );
+              fix->set_phase( val.second );
             }
+            opt->set_period( 0 );
+          } else if ( IQBalanceAutomatic == mode ) {
+            opt->set_period( device_->get_sample_rate() / 5 );
+            opt->reset();
           }
         }
       #else
@@ -285,30 +278,22 @@ namespace gr {
 
     void source_impl::set_iq_balance(const std::complex<double> &balance, size_t chan)
     {
-
         #ifdef HAVE_IQBALANCE
-          size_t channel = 0;
-          for (source_iface *dev : _devs) {
-            for (size_t dev_chan = 0; dev_chan < dev->get_num_channels(); dev_chan++) {
-              if ( chan == channel++ ) {
-                if ( chan < _iq_opt.size() && chan < _iq_fix.size() ) {
-                  gr::iqbalance::optimize_c *opt = _iq_opt[chan];
-                  gr::iqbalance::fix_cc *fix = _iq_fix[chan];
+        if ( chan < _iq_opt.size() && chan < _iq_fix.size() ) {
+          gr::iqbalance::optimize_c *opt = _iq_opt[chan];
+          gr::iqbalance::fix_cc *fix = _iq_fix[chan];
 
-                  if ( opt->period() == 0 ) { /* automatic optimization desabled */
-                    fix->set_mag( balance.real() );
-                    fix->set_phase( balance.imag() );
-                  }
-                }
-              }
-            }
+          if ( opt->period() == 0 ) { /* automatic optimization disabled */
+            fix->set_mag( balance.real() );
+            fix->set_phase( balance.imag() );
           }
+        }
         #else
         if(chan < get_num_channels())
         {
             return device_->set_iq_balance( balance, chan );
         }
-#endif
+        #endif
     }
 
     double source_impl::set_bandwidth(double bandwidth, size_t chan)
