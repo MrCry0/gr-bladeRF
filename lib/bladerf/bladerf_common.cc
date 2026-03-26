@@ -622,6 +622,7 @@ void bladerf_common::init_refclk(int freq)
     if (status != 0) {
       BLADERF_WARNING("bladerf_get_pll_refclk_range: "
                       << bladerf_strerror(status));
+      return;
     }
     if (freq < range->min || freq > range->max)
     {
@@ -651,8 +652,12 @@ void bladerf_common::init_input_clock(const std::string &clock_selection)
     bladerf_clock_select sel;
     if(clock_selection == "ONBOARD")
         sel = CLOCK_SELECT_ONBOARD;
-    if(clock_selection == "EXTERNAL")
+    else if(clock_selection == "EXTERNAL")
         sel = CLOCK_SELECT_EXTERNAL;
+    else {
+        BLADERF_WARNING("unknown clock selection: " << clock_selection);
+        return;
+    }
 
     auto status = bladerf_set_clock_select(_dev.get(),sel);
     if (status != 0) {

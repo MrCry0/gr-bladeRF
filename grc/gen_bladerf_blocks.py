@@ -111,13 +111,13 @@ parameters:
   label: 'Buffer Size'
   dtype: real
   default: 4096
-  hide: ${'$'}{ 'none' if use_ref_clk == 'True' else 'part'}
+  hide: part
 
 - id: buffers
   label: 'Number of Buffers'
   dtype: real
   default: 512
-  hide: ${'$'}{ 'none' if use_ref_clk == 'True' else 'part'}
+  hide: part
 
 - id: in_clk
   label: 'Input clock'
@@ -129,8 +129,8 @@ parameters:
 - id: out_clk
   label: 'Output clock'
   dtype: enum
-  default: False
-  options: [False, True]
+  default: 'False'
+  options: ['False', 'True']
   option_labels: ['Disable', 'Enable']
   
 - id: use_dac

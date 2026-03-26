@@ -30,6 +30,9 @@ set(gr_bladerf_libs "" CACHE INTERNAL "lib that accumulates link targets")
 
 add_library(gnuradio-bladeRF SHARED)
 APPEND_LIB_LIST(${Boost_LIBRARIES} gnuradio::gnuradio-runtime)
+if(gnuradio-iqbalance_FOUND)
+    APPEND_LIB_LIST(gnuradio::gnuradio-iqbalance)
+endif()
 target_include_directories(gnuradio-bladeRF
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
     PUBLIC ${Boost_INCLUDE_DIRS}

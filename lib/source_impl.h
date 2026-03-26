@@ -8,9 +8,16 @@
 #ifndef INCLUDED_BLADERF_SOURCE_IMPL_H
 #define INCLUDED_BLADERF_SOURCE_IMPL_H
 
+#include <map>
+
 #include <bladeRF/source.h>
 #include "bladerf/bladerf_source_c.h"
 #include "channel_store.h"
+
+#ifdef HAVE_IQBALANCE
+#include <gnuradio/iqbalance/fix_cc.h>
+#include <gnuradio/iqbalance/optimize_c.h>
+#endif
 
 namespace gr {
   namespace bladeRF {
@@ -28,6 +35,12 @@ namespace gr {
       channel_store<double> bb_gain_;
       channel_store<std::string> antenna_;
       channel_store<double> bandwidth_;
+
+#ifdef HAVE_IQBALANCE
+      std::vector<gr::iqbalance::optimize_c *> _iq_opt;
+      std::vector<gr::iqbalance::fix_cc *> _iq_fix;
+      std::map<size_t, std::pair<float, float>> _vals;
+#endif
 
      public:
       source_impl(const std::string & args);
